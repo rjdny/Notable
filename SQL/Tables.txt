@@ -1,0 +1,59 @@
+
+Table "UserProfile" {
+  "id" int [pk, increment]
+  "firebaseUserId" nvarchar(255)
+  "full_name" nvarchar(255)
+  "created_at" timestamp
+}
+
+Table "Note" {
+  "id" int [pk, increment]
+  "userProfileId" int
+  "content" nvarchar(255)
+  "created_at" timestamp
+}
+
+Table "Category" {
+  "id" int [pk, increment]
+  "name" nvarchar(255)
+  "userProfileId" int
+}
+
+Table "CategoryNote" {
+  "id" int [pk, increment] 
+  "categoryId" int
+  "noteId" int
+  "userProfileId" int
+}
+
+Table "NoteComment" {
+  "id" int [pk, increment]
+  "noteId" int
+  "userProfileId" int
+  "content" nvarchar(255)
+  "created_at" timestamp
+}
+
+Table "NoteLike" {
+  "id" int [pk, increment]
+  "noteId" int
+  "userProfileId" int
+}
+
+Ref:"UserProfile"."id" < "Note"."userProfileId"
+
+Ref:"UserProfile"."id" < "Category"."userProfileId"
+
+Ref:"Note"."id" < "CategoryNote"."noteId" [delete: cascade]
+
+Ref:"Category"."id" < "CategoryNote"."categoryId"
+
+Ref:"UserProfile"."id" < "CategoryNote"."userProfileId"
+
+Ref: "Note"."id" < "NoteComment"."noteId"
+
+Ref: "UserProfile"."id" < "NoteComment"."userProfileId"
+
+Ref: "UserProfile"."id" < "NoteLike"."userProfileId"
+
+Ref: "Note"."id" < "NoteLike"."noteId"
