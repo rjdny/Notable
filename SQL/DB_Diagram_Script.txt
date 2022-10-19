@@ -1,0 +1,60 @@
+
+Table "UserProfile" {
+  "Id" int [pk, increment]
+  "FirebaseUserId" nvarchar(255)
+  "Username" nvarchar(255)
+  "Email" nvarchar(255)
+  "CreatedAt" timestamp
+}
+
+Table "Note" {
+  "Id" int [pk, increment]
+  "UserProfileId" int
+  "Content" nvarchar(255)
+  "CreatedAt" timestamp
+}
+
+Table "Category" {
+  "Id" int [pk, increment]
+  "Name" nvarchar(255)
+  "UserProfileId" int
+}
+
+Table "CategoryNote" {
+  "Id" int [pk, increment] 
+  "CategoryId" int
+  "NoteId" int
+  "UserProfileId" int
+}
+
+Table "NoteComment" {
+  "Id" int [pk, increment]
+  "NoteId" int
+  "UserProfileId" int
+  "Content" nvarchar(255)
+  "CreatedAt" timestamp
+}
+
+Table "NoteLike" {
+  "Id" int [pk, increment]
+  "NoteId" int
+  "UserProfileId" int
+}
+
+Ref:"UserProfile"."Id" < "Note"."UserProfileId"
+
+Ref:"UserProfile"."Id" < "Category"."UserProfileId"
+
+Ref:"Note"."Id" < "CategoryNote"."NoteId" [delete: cascade]
+
+Ref:"Category"."Id" < "CategoryNote"."CategoryId"
+
+Ref:"UserProfile"."Id" < "CategoryNote"."UserProfileId"
+
+Ref: "Note"."Id" < "NoteComment"."NoteId"
+
+Ref: "UserProfile"."Id" < "NoteComment"."UserProfileId"
+
+Ref: "UserProfile"."Id" < "NoteLike"."UserProfileId"
+
+Ref: "Note"."Id" < "NoteLike"."NoteId"
