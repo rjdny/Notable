@@ -10,5 +10,7 @@ namespace Notable.Repositories
         List<Note> GetAll();
         Note GetById(int id);
         void Update(Note note);
+        List<Note> GetAllByUser(int userId);
+        void AddCategoryNote(CategoryNote categoryNote);
     }
 }

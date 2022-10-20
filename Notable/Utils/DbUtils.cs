@@ -26,6 +26,18 @@ namespace Notable.Utils
         }
 
         /// <summary>
+        /// Get an bool from a data reader object.
+        /// </summary>
+        /// <param name="reader">A SqlDataReader that has not exhausted it's result set.</param>
+        /// <param name="column">The name of the column from the result set refereed to by the reader.</param>
+        /// <returns></returns>
+        public static bool GetBool(SqlDataReader reader, string column)
+        {
+            var ordinal = reader.GetOrdinal(column);
+            return reader.GetBoolean(ordinal);
+        }
+
+        /// <summary>
         ///  Get an int from a data reader object.
         ///  This method assumes the value is not NULL.
         /// </summary>

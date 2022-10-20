@@ -5,6 +5,7 @@ namespace Notable.Repositories
 {
     public interface ICategoryRepository
     {
+        List<Note> GetNotes(int categoryId);
         void Add(Category category);
         void Delete(int id);
         List<Category> GetAll();

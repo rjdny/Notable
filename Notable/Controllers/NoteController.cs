@@ -19,6 +19,18 @@ namespace Notable.Controllers
             _noteRepository = userProfileRepository;
         }
 
+        [HttpGet("usernotes/{userId}")]
+        public IActionResult GetByUser(int userId)
+        {
+            return Ok(_noteRepository.GetAllByUser(userId));
+        }
+
+        [HttpPost("categoryadd")]
+        public IActionResult AddToCategory(CategoryNote cn)
+        {
+            _noteRepository.AddCategoryNote(cn);
+            return NoContent();
+        }
 
         // GET: api/Note
         [HttpGet]

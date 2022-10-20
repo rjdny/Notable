@@ -10,6 +10,42 @@ namespace Notable.Repositories
     public class CategoryRepository : BaseRepository, ICategoryRepository
     {
         public CategoryRepository(IConfiguration iconfig) : base(iconfig) { }
+
+        public List<Note> GetNotes(int categoryId)
+        {
+            using (var conn = Connection)
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                    SELECT n.Id, n.UserProfileId, n.Content, n.CreatedAt, n.isPublic
+                    FROM CategoryNote cn
+                    JOIN Note n ON cn.NoteId = n.Id
+                    WHERE cn.CategoryId = @id";
+
+                    cmd.Parameters.AddWithValue("@id", categoryId);
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        var notes = new List<Note>();
+                        while (reader.Read())
+                        {
+                            notes.Add(new Note()
+                            {
+                                Id = DbUtils.GetInt(reader, "Id"),
+                                UserProfileId = DbUtils.GetInt(reader, "UserProfileId"),
+                                Content = DbUtils.GetString(reader, "Content"),
+                                CreatedAt = DbUtils.GetDateTime(reader, "CreatedAt"),
+                                IsPublic = DbUtils.GetBool(reader, "isPublic")
+                            });
+                        }
+                        return notes;
+                    }
+                }
+            }
+        }
+
         public List<Category> GetAll()
         {
             using (var conn = Connection)
@@ -38,7 +74,6 @@ namespace Notable.Repositories
                 }
             }
         }
-
         public Category GetById(int id)
         {
             using (var conn = Connection)

@@ -18,6 +18,11 @@ namespace Notable.Controllers
             _categoryRepository = categoryRepository;
         }
 
+        [HttpGet("notes/{categoryId}")]
+        public IActionResult GetNotes(int categoryId)
+        {
+            return Ok(_categoryRepository.GetNotes(categoryId));
+        }
 
         // GET: api/CategoryController
         [HttpGet]
