@@ -13,10 +13,11 @@ namespace Notable.Controllers
     public class NoteController : ControllerBase
     {
         private readonly INoteRepository _noteRepository;
-
-        public NoteController(INoteRepository userProfileRepository)
+        private readonly ICategoryRepository _categoryRepository;
+        public NoteController(INoteRepository userProfileRepository, ICategoryRepository categoryRepository)
         {
             _noteRepository = userProfileRepository;
+            _categoryRepository = categoryRepository;
         }
 
         [HttpGet("usernotes/{userId}")]
@@ -25,6 +26,14 @@ namespace Notable.Controllers
             return Ok(_noteRepository.GetAllByUser(userId));
         }
 
+
+        [HttpGet("categorynotes/{categoryId}")]
+        public IActionResult GetNotes(int categoryId)
+        {
+            return Ok(_categoryRepository.GetNotes(categoryId));
+        }
+
+        // POST: api/Note/categoryadd
         [HttpPost("categoryadd")]
         public IActionResult AddToCategory(CategoryNote cn)
         {

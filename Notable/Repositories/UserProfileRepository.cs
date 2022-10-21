@@ -93,7 +93,6 @@ namespace Notable.Repositories
                     DbUtils.AddParameter(cmd, "@firebaseUserId", profile.Username);
                     DbUtils.AddParameter(cmd, "@createdAt", DateTime.Now);
 
-
                     profile.Id = (int)cmd.ExecuteScalar();
                 }
             }
