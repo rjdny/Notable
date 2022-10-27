@@ -8,7 +8,7 @@ namespace Notable.Repositories
         List<Note> GetNotes(int categoryId);
         void Add(Category category);
         void Delete(int id);
-        List<Category> GetAll();
+        List<Category> GetAll(int userId);
         Category GetById(int id);
         void Update(Category category);
     }

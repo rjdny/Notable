@@ -45,8 +45,7 @@ namespace Notable.Repositories
                 }
             }
         }
-
-        public List<Category> GetAll()
+        public List<Category> GetAll(int userId)
         {
             using (var conn = Connection)
             {
@@ -55,7 +54,10 @@ namespace Notable.Repositories
                 {
                     cmd.CommandText = @"
                     SELECT Id, [Name], UserProfileId
-                    FROM Category";
+                    FROM Category
+                    WHERE UserProfileId = @userId";
+
+                    cmd.Parameters.AddWithValue("userId",userId);
 
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {

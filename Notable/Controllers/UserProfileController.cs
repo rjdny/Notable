@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Notable.Models;
 using Notable.Repositories;
 using System.Collections.Generic;
+using System.Security.Claims;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -9,6 +11,7 @@ namespace Notable.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize]
     public class UserProfileController : ControllerBase
     {
         private readonly IUserProfileRepository _userProfileRepository;
@@ -17,7 +20,6 @@ namespace Notable.Controllers
         {
             _userProfileRepository = userProfileRepository;
         }
-
 
         [HttpGet]
         public IActionResult Get()
@@ -29,11 +31,33 @@ namespace Notable.Controllers
         public IActionResult Get(int id)
         {
             UserProfile up = _userProfileRepository.GetById(id);
-            if(up == null)
+            if (up == null)
             {
                 return NotFound();
             }
             return Ok(up);
+        }
+
+        [HttpGet("getbyfirebaseid/{firebaseUserId}")]
+        public IActionResult Get(string firebaseUserId)
+        {
+            UserProfile up = _userProfileRepository.GetByFirebaseId(firebaseUserId);
+            if (up == null)
+            {
+                return NotFound();
+            }
+            return Ok(up);
+        }
+
+        [HttpGet("DoesUserExist/{firebaseUserId}")]
+        public IActionResult DoesUserExist(string firebaseUserId)
+        {
+            UserProfile up = _userProfileRepository.GetByFirebaseId(firebaseUserId);
+            if (up == null)
+            {
+                return NotFound();
+            }
+            return Ok();
         }
 
         [HttpPost]
@@ -61,5 +85,6 @@ namespace Notable.Controllers
             _userProfileRepository.Delete(id);
             return NoContent();
         }
+
     }
 }

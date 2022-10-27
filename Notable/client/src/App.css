@@ -1,6 +1,31 @@
+body{
+  /* background-color: #282c34; */
+  color: white;
+  background-image: url("https://coolbackgrounds.io/images/backgrounds/index/compute-ea4c57a4.png");
+}
+
+
 .App {
   text-align: center;
 }
+
+
+.Navvy .active{
+  border-bottom: 2px solid #ffffff;
+  bottom: -5px;
+}
+
+
+.zoom{
+  transition: transform 0.5s; /* Animation */
+  margin: 0 auto;
+}
+
+.zoom:hover{
+  transform: scale(1.1);
+  transform: rotate(4deg);
+}
+
 
 .App-logo {
   height: 40vmin;
@@ -35,4 +60,34 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+.navtext{
+  font-style: italic;
+  font-size:large;
+}
+
+.cleanform{
+  background-color: #555555;
+  color: white;
+  width: 300px;
+  padding: 10px;
+  margin-top:30px;
+  border-radius: 25px;
+  display: inline-block
+}
+.authError{
+  color:rgb(221, 43, 43);
+}
+
+.cardBackButton{
+  position:absolute;
+  margin-top: 35px;
+  left: 25%;
+}
+
+.tableBackButton{
+  position:absolute;
+  margin-top: 59px;
+  left: 15%;
 }

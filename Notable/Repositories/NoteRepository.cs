@@ -19,7 +19,7 @@ namespace Notable.Repositories
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                    SELECT Id, UserProfileId, Content, CreatedAt, isPublic
+                    SELECT Id, UserProfileId, Name, Content, CreatedAt, isPublic
                     FROM Note
                     WHERE UserProfileId = @userId";
 
@@ -34,6 +34,7 @@ namespace Notable.Repositories
                             {
                                 Id = DbUtils.GetInt(reader, "Id"),
                                 UserProfileId = DbUtils.GetInt(reader, "UserProfileId"),
+                                Name = DbUtils.GetString(reader, "Name"),
                                 Content = DbUtils.GetString(reader, "Content"),
                                 CreatedAt = DbUtils.GetDateTime(reader, "CreatedAt"),
                                 IsPublic = DbUtils.GetBool(reader, "isPublic")
@@ -155,7 +156,7 @@ namespace Notable.Repositories
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                    SELECT Id, UserProfileId, Content, CreatedAt, isPublic
+                    SELECT Id, UserProfileId, Name, Content, CreatedAt, isPublic
                     FROM Note";
 
                     using (SqlDataReader reader = cmd.ExecuteReader())
@@ -167,6 +168,7 @@ namespace Notable.Repositories
                             {
                                 Id = DbUtils.GetInt(reader, "Id"),
                                 UserProfileId = DbUtils.GetInt(reader, "UserProfileId"),
+                                Name = DbUtils.GetString(reader, "Name"),
                                 Content = DbUtils.GetString(reader, "Content"),
                                 CreatedAt = DbUtils.GetDateTime(reader, "CreatedAt"),
                                 IsPublic = DbUtils.GetBool(reader, "isPublic")
@@ -185,7 +187,7 @@ namespace Notable.Repositories
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                    SELECT Id, UserProfileId, Content, CreatedAt, isPublic
+                    SELECT Id, UserProfileId, Name, Content, CreatedAt, isPublic
                     FROM Note
                     WHERE id = @Id";
 
@@ -200,6 +202,7 @@ namespace Notable.Repositories
                             {
                                 Id = DbUtils.GetInt(reader, "Id"),
                                 UserProfileId = DbUtils.GetInt(reader, "UserProfileId"),
+                                Name = DbUtils.GetString(reader, "Name"),
                                 Content = DbUtils.GetString(reader, "Content"),
                                 CreatedAt = DbUtils.GetDateTime(reader, "CreatedAt"),
                                 IsPublic = DbUtils.GetBool(reader, "isPublic")
@@ -212,17 +215,19 @@ namespace Notable.Repositories
         }
         public void Add(Note note)
         {
+
             using (var conn = Connection)
             {
                 conn.Open();
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                    INSERT INTO Note (UserProfileId, Content, CreatedAt, isPublic)
+                    INSERT INTO Note (UserProfileId, Name, Content, CreatedAt, isPublic)
                     OUTPUT INSERTED.ID
-                    VALUES (@userProfileId, @content, @createdAt, @public)";
+                    VALUES (@userProfileId, @name, @content, @createdAt, @public)";
 
                     DbUtils.AddParameter(cmd, "@userProfileId", note.UserProfileId);
+                    DbUtils.AddParameter(cmd, "@name", note.Name);
                     DbUtils.AddParameter(cmd, "@content", note.Content);
                     DbUtils.AddParameter(cmd, "@public", note.IsPublic);
                     DbUtils.AddParameter(cmd, "@createdAt", DateTime.Now);
@@ -240,12 +245,13 @@ namespace Notable.Repositories
                 {
                     cmd.CommandText = @"
                     UPDATE Note 
-                        SET Content = @content, isPublic = @public
+                        SET Name = @name, Content = @content, isPublic = @public
                     WHERE Id = @id";
 
                     DbUtils.AddParameter(cmd, "@id", note.Id);
                     DbUtils.AddParameter(cmd, "@content", note.Content);
                     DbUtils.AddParameter(cmd, "@public", note.IsPublic);
+                    DbUtils.AddParameter(cmd, "@name", note.Name);
                     cmd.ExecuteNonQuery();
                 }
             }

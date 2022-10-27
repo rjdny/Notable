@@ -9,6 +9,7 @@ namespace Notable.Repositories
         void Delete(int id);
         List<UserProfile> GetAll();
         UserProfile GetById(int id);
+        UserProfile GetByFirebaseId(string fbid);
         void Update(UserProfile profile);
     }
 }

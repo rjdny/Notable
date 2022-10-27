@@ -41,6 +41,40 @@ namespace Notable.Repositories
                 }
             }
         }
+        public UserProfile GetByFirebaseId(string fbid)
+        {
+            using (var conn = Connection)
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                    SELECT Id, Username, Email, FirebaseUserId, CreatedAt
+                    FROM UserProfile
+                    WHERE FirebaseUserId = @Id";
+
+                    DbUtils.AddParameter(cmd, "@Id", fbid);
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        UserProfile profile = null;
+                        if (reader.Read())
+                        {
+                            profile = new UserProfile()
+                            {
+                                Id = DbUtils.GetInt(reader, "Id"),
+                                Username = DbUtils.GetString(reader, "Username"),
+                                Email = DbUtils.GetString(reader, "Email"),
+                                FirebaseUserId = DbUtils.GetString(reader, "FirebaseUserId"),
+                                CreatedAt = DbUtils.GetDateTime(reader, "CreatedAt")
+                            };
+                        }
+
+                        return profile;
+                    }
+                }
+            }
+        }
         public UserProfile GetById(int id)
         {
             using (var conn = Connection)
@@ -89,8 +123,8 @@ namespace Notable.Repositories
                     VALUES (@username, @email, @firebaseUserId, @createdAt)";
                     
                     DbUtils.AddParameter(cmd, "@username", profile.Username);
-                    DbUtils.AddParameter(cmd, "@email", profile.Username);
-                    DbUtils.AddParameter(cmd, "@firebaseUserId", profile.Username);
+                    DbUtils.AddParameter(cmd, "@email", profile.Email);
+                    DbUtils.AddParameter(cmd, "@firebaseUserId", profile.FirebaseUserId);
                     DbUtils.AddParameter(cmd, "@createdAt", DateTime.Now);
 
                     profile.Id = (int)cmd.ExecuteScalar();
@@ -112,7 +146,7 @@ namespace Notable.Repositories
 
                     DbUtils.AddParameter(cmd, "@id", profile.Id);
                     DbUtils.AddParameter(cmd, "@username", profile.Username);
-                    DbUtils.AddParameter(cmd, "@email", profile.Username);
+                    DbUtils.AddParameter(cmd, "@email", profile.Email);
                     cmd.ExecuteNonQuery();
                 }
             }

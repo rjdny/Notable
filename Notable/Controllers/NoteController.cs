@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Notable.Models;
 using Notable.Repositories;
+using System;
 using System.Collections.Generic;
+using System.Security.Claims;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -10,14 +12,19 @@ namespace Notable.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class NoteController : ControllerBase
     {
         private readonly INoteRepository _noteRepository;
         private readonly ICategoryRepository _categoryRepository;
-        public NoteController(INoteRepository userProfileRepository, ICategoryRepository categoryRepository)
+        private readonly IUserProfileRepository _profileRepository;
+        public NoteController(INoteRepository noteRepository,
+            ICategoryRepository categoryRepository,
+            IUserProfileRepository profileRepository)
         {
-            _noteRepository = userProfileRepository;
+            _noteRepository = noteRepository;
             _categoryRepository = categoryRepository;
+            _profileRepository = profileRepository;
         }
 
         [HttpGet("usernotes/{userId}")]
@@ -33,7 +40,7 @@ namespace Notable.Controllers
             return Ok(_categoryRepository.GetNotes(categoryId));
         }
 
-        // POST: api/Note/categoryadd
+        // POST: api/Note/categoryaddd
         [HttpPost("categoryadd")]
         public IActionResult AddToCategory(CategoryNote cn)
         {
@@ -57,21 +64,29 @@ namespace Notable.Controllers
             {
                 return NotFound();
             }
+            note.Belongs = (Authentication.GetCurrentUserProfile(User, _profileRepository).Id == note.UserProfileId);
             return Ok(note);
         }
 
         // POST api/Note
         [HttpPost]
-        public void Post(Note note)
+        public IActionResult Post([FromBody] Note note)
         {
-            _noteRepository.Add(note);
+            var up = Authentication.GetCurrentUserProfile(User, _profileRepository);
+            if (up != null)
+            {
+                note.UserProfileId = up.Id;
+                _noteRepository.Add(note);
+                return CreatedAtAction(nameof(Get), note.Id, note);
+            }
+            return BadRequest();
         }
 
         // PUT api/Note/5
         [HttpPut("{id}")]
         public IActionResult Put(int id, Note note)
         {
-            if(id != note.Id)
+            if (id != note.Id)
             {
                 return BadRequest();
             }
@@ -87,5 +102,7 @@ namespace Notable.Controllers
             _noteRepository.Delete(id);
             return NoContent();
         }
+
+
     }
 }

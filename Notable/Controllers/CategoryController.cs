@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Notable.Models;
 using Notable.Repositories;
 using System.Collections.Generic;
+using System.Security.Claims;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -9,20 +11,30 @@ namespace Notable.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CategoryController : ControllerBase
     {
+        private readonly IUserProfileRepository _profileRepository;
         private readonly ICategoryRepository _categoryRepository;
-
-        public CategoryController(ICategoryRepository categoryRepository)
+        
+        public CategoryController(ICategoryRepository categoryRepository,
+            IUserProfileRepository userProfileRepository)
         {
             _categoryRepository = categoryRepository;
+            _profileRepository = userProfileRepository;
+            
         }
 
         // GET: api/CategoryController
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok(_categoryRepository.GetAll());
+            var up = Authentication.GetCurrentUserProfile(User, _profileRepository);
+            if (up != null)
+            {
+                return Ok(_categoryRepository.GetAll(up.Id));
+            }
+            return BadRequest();
         }
 
         // GET api/CategoryController/5
@@ -48,7 +60,7 @@ namespace Notable.Controllers
         [HttpPut("{id}")]
         public IActionResult Put(int id, Category category)
         {
-            if(id != category.Id)
+            if (id != category.Id)
             {
                 return BadRequest();
             }
@@ -63,5 +75,6 @@ namespace Notable.Controllers
             _categoryRepository.Delete(id);
             return NoContent();
         }
+
     }
 }

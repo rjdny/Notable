@@ -1,0 +1,65 @@
+
+tbody{
+    border: darkgrey 2px solid;
+}
+
+tr{
+    border: darkgrey 2px solid;
+}
+
+td{
+    border: darkgrey 2px solid;
+}
+
+table{
+    margin-top: 100px;
+    margin-left: 15%;
+    width: 1000px;
+    background-color: #202428;
+}
+
+
+.CreateModal{
+    top:10%;
+    border-radius: 200px;
+}
+
+.optionButton{
+    margin-right: 3px;
+}
+
+.optionsDiv{
+    margin:0px;
+}
+
+
+.contentdiv{
+    height: 100px;
+    width: 600px;
+    height: 100%;
+    margin-left: 50%;
+    overflow:scroll;
+    scroll-behavior: smooth;
+    overflow-y:auto;
+    overflow-x: auto;
+    word-wrap: break-word;
+}
+
+.AddNoteButton{
+    position:absolute;
+    top:135px;
+    left: 15%;
+}
+
+.dataRow{
+    height: 10px;
+}
+
+.darkmodal{
+    background-color: #202428;
+    color:white;
+}
+
+.delModal{
+    top:20%;
+}
