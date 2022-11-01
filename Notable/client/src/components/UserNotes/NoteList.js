@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, ButtonToggle, Form, Input, Label, Modal, ModalHeader, ModalBody, ModalFooter,
-Card, CardBody, CardHeader,  CardFooter} from "reactstrap";
-import { _addNote, _deleteNote, _getMyNotes } from "../../modules/noteManager";
+import { Button, Form, Input, Label, Modal, ModalHeader, ModalBody, ModalFooter} from "reactstrap";
+import { _getAllCategories } from "../../modules/categoryManager";
+import { _AddCategoryNote, _addNote, _deleteNote, _getAllNoteCategories, _getMyNotes, _RemoveCategoryNote } from "../../modules/noteManager";
 import "../styles/noteList.css"
 
-
 export default function NoteList(){
+    const nav = useNavigate()
+
     const [notes, setNotes] = useState([])
+    const [categories, setCategories] = useState([])
 
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [noteName, setNoteName] = useState("Untitled Note")
@@ -18,17 +20,15 @@ export default function NoteList(){
     const [delNoteId,setDelNoteId] = useState(null)
     const [delNoteName,setDelNoteName] = useState("")
 
-    const nav = useNavigate()
+    const [noteId, setNoteId] = useState()
+    const [showAddCategory, setShowAddCategory] = useState(false)
 
-    
     const toggleCreateModal = () => {
         setShowCreateModal(!showCreateModal)
     }
-
     const toggleDeleteModal = () => {
         setShowDelModal(!showDelModal)
     }
-
     const updateNotes = () => {
         _getMyNotes().then((_notes) => {
             _notes = _notes.sort(function(a,b){
@@ -38,16 +38,26 @@ export default function NoteList(){
             setNotes(_notes)
         })
     }
-
     const AddNote = () => {
         const obj = {name:noteName, content:noteContent, isPublic:notePublic};
         _addNote(obj)
         .then(() => {updateNotes();});
     }
+    const updateCategories = (noteId) =>{
+        return _getAllCategories().then((categories) => {
+            _getAllNoteCategories(noteId).then((noteCategories) => {
 
-    useState(() => {
+                categories.forEach(category => {
+                    category.contains = (noteCategories.find((nc) => nc.id === category.id) !== undefined)
+                });
+
+                setCategories(categories)
+            })
+        })
+    }
+    useEffect(() => {
         updateNotes();
-    })
+    },[])
 
     return (<>
     <div className="AddNoteButton">
@@ -55,7 +65,7 @@ export default function NoteList(){
         <Button onClick={() => {setShowCreateModal(true)}}>Create a Note</Button>
     </div>
 
-    <table className="notesTable">
+        <table className="cleantable">
             <thead>
                 <tr>
                     <td><b>Name</b></td>
@@ -71,13 +81,17 @@ export default function NoteList(){
                     <td>{(note.isPublic ? "Public":"Private")}</td>
                     <td>{new Date(note.createdAt).toLocaleDateString()}</td>
                     <td>
-                        <Button 
-                        onClick={() => {setDelNoteId(note.id); setDelNoteName(note.name); toggleDeleteModal()}} 
-                        className="optionButton"><img src="/trash.svg" /></Button>
-
-                        <Button 
+                        <Button
                         onClick={() => nav(`/notes/${note.id}`)} 
                         className="optionButton"><img src="/eye.svg" /></Button>
+
+                        <Button onClick={() => {updateCategories(note.id).then(() => { setNoteId(note.id); setShowAddCategory(true)})}} 
+                        className="optionButton"><img src="/folder.svg" /></Button>
+
+                        <Button 
+                        onClick={() => {setDelNoteId(note.id); setDelNoteName(note.name); toggleDeleteModal()}} 
+                        color="danger"
+                        className="optionButton"><img src="/trash.svg" /></Button>
                         {/*
                         <Button className="optionButton"><img src="/chat.svg" /></Button>
                         <ButtonToggle className="optionButton"><img src="/hand-thumbs-up.svg" /></ButtonToggle> 
@@ -87,8 +101,6 @@ export default function NoteList(){
                 )}
             </tbody>
         </table>
-
-
 
         <Modal className="CreateModal" isOpen={showCreateModal} toggle={() => setShowCreateModal(!showDelModal)}>
 
@@ -119,7 +131,7 @@ export default function NoteList(){
                 onChange={(e) =>{setNoteContent(e.target.value)}}/>
                 <Label for="email">Public <input onChange={(e) => {setNotePublic(e.target.checked)}} type={"checkbox"}></input></Label>
                 <div style={{textAlign:"center"}}>
-                    <Button color="success" onClick={() => {
+                    <Button color="primary" onClick={() => {
                         AddNote()
                         setShowCreateModal(false)
                         document.querySelector(".NoteForm").reset()
@@ -131,8 +143,6 @@ export default function NoteList(){
             </Form>
           </ModalBody>
         </Modal>
-
-
 
         <Modal className="delModal" color="dark" isOpen={showDelModal} toggle={() => setShowDelModal(!showDelModal)}>
           <ModalHeader className="darkmodal" toggle={toggleDeleteModal}>Delete Note</ModalHeader>
@@ -150,6 +160,30 @@ export default function NoteList(){
           </ModalFooter>
         </Modal>
 
+        <Modal className="delModal" color="dark" isOpen={showAddCategory} toggle={() => setShowAddCategory(!showAddCategory)}>
+          <ModalHeader className="darkmodal" toggle={() => setShowAddCategory(!showAddCategory)}>Add To Category</ModalHeader>
+            <ModalBody className="darkmodal">
+                {categories.map((category) => {
+                    return (<div key={category.id}>
+                        <Input checked={category.contains} onChange={(e) => {
+                            if(e.target.checked){
+                                _AddCategoryNote(category.id, noteId).then(() => {
+                                    updateCategories(noteId)
+                                })
+                            }else{
+                                _RemoveCategoryNote(category.id, noteId).then(() => {
+                                    updateCategories(noteId)
+                                })
+                            }
+                        }} type="checkbox" id={category.id}/>
+                        <label>{category.name}</label></div>)
+                })}
+
+            </ModalBody>
+            <ModalFooter className="darkmodal">
+
+            </ModalFooter>
+        </Modal>
     </>)
     
 }

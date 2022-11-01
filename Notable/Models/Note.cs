@@ -13,6 +13,6 @@ namespace Notable.Models
 
 		public bool Belongs { get; set; }
 
-		//public UserProfile UserProfile { get; set; }
+		public UserProfile UserProfile { get; set; }
 	}
 }

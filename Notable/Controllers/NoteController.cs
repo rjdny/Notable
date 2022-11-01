@@ -33,26 +33,63 @@ namespace Notable.Controllers
             return Ok(_noteRepository.GetAllByUser(userId));
         }
 
-
         [HttpGet("categorynotes/{categoryId}")]
         public IActionResult GetNotes(int categoryId)
         {
             return Ok(_categoryRepository.GetNotes(categoryId));
         }
 
-        // POST: api/Note/categoryaddd
-        [HttpPost("categoryadd")]
-        public IActionResult AddToCategory(CategoryNote cn)
+        [HttpGet("notecategories/{noteId}")]
+        public IActionResult GetCategories(int noteId)
         {
+            return Ok(_categoryRepository.GetCategories(noteId));
+        }
+
+        // POST: api/Note/categoryadd
+        [HttpPost("categoryadd")]
+        public IActionResult AddToCategory([FromBody]CategoryNote cn)
+        {
+            var up = Authentication.GetCurrentUserProfile(User, _profileRepository);
+            if(up == null)
+            {
+                return Unauthorized();
+            }
+            cn.UserProfileId = up.Id;
             _noteRepository.AddCategoryNote(cn);
             return NoContent();
         }
+
+
+        [HttpDelete("categoryremove/{categoryNoteId}")]
+        public IActionResult RemoveFromCateogory(int categoryNoteId)
+        {
+            _noteRepository.RemoveCategoryNote(categoryNoteId);
+            return NoContent();
+        }
+
+        [HttpDelete("categoryremove/{categoryId}/{noteId}")]
+        public IActionResult RemoveFromCateogory(int categoryId, int noteId)
+        {
+            _noteRepository.RemoveCategoryNote(categoryId, noteId);
+            return NoContent();
+        }
+
 
         // GET: api/Note
         [HttpGet]
         public IActionResult Get()
         {
             return Ok(_noteRepository.GetAll());
+        }
+
+        // GET: api/Note
+        [HttpGet("public")]
+        public IActionResult GetPublicNotes(string q)
+        {
+            if(string.IsNullOrEmpty(q))
+                return Ok(_noteRepository.GetPublicNotes());
+
+            return Ok(_noteRepository.GetPublicNotes(q));
         }
 
         // GET api/Note/5
@@ -64,7 +101,9 @@ namespace Notable.Controllers
             {
                 return NotFound();
             }
-            note.Belongs = (Authentication.GetCurrentUserProfile(User, _profileRepository).Id == note.UserProfileId);
+
+            UserProfile up = Authentication.GetCurrentUserProfile(User, _profileRepository);
+            note.Belongs = (up != null && up.Id == note.UserProfileId);
             return Ok(note);
         }
 
@@ -102,7 +141,5 @@ namespace Notable.Controllers
             _noteRepository.Delete(id);
             return NoContent();
         }
-
-
     }
 }

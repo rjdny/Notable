@@ -21,8 +21,7 @@ namespace Notable.Controllers
             IUserProfileRepository userProfileRepository)
         {
             _categoryRepository = categoryRepository;
-            _profileRepository = userProfileRepository;
-            
+            _profileRepository = userProfileRepository; 
         }
 
         // GET: api/CategoryController
@@ -51,9 +50,16 @@ namespace Notable.Controllers
 
         // POST api/CategoryController
         [HttpPost]
-        public void Post(Category category)
+        public IActionResult Post(Category category)
         {
-            _categoryRepository.Add(category);
+            var up = Authentication.GetCurrentUserProfile(User, _profileRepository);
+            if (up != null)
+            {
+                category.UserProfileId = up.Id;
+                _categoryRepository.Add(category);
+                return CreatedAtAction(nameof(Get),category.Id,category);
+            }
+            return BadRequest();
         }
 
         // PUT api/CategoryController/5
