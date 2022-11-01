@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Button, ButtonToggle, Form, Input, Label, Modal, ModalHeader, ModalBody, ModalFooter, Card, CardHeader, CardBody, CardFooter } from "reactstrap";
+import { Button, Input, Label, Card, CardHeader, CardBody, CardFooter } from "reactstrap";
 import { _addNote, _deleteNote, _getMyNotes, _getNoteById, _updateNote } from "../../modules/noteManager";
 import "../styles/noteDetails.css"
 
@@ -40,18 +40,24 @@ export default function NoteDetails(){
     },[])
 
 
-    return (note?.id == undefined) ? 
+    return (note?.id === undefined) ? 
     (<><h3></h3></>) 
     : 
     (<>
         {(!note?.belongs) ? 
                 (<>
-                <Button onClick={() => nav(-1)}>Back</Button>
-                <Card className="mainCard" color="dark">
-                    <CardHeader>
+
+                <Button style={{position:"absolute", left:"25%", top:"110px"}} onClick={() => nav(-1)}>Back</Button>
+                <Card style={{borderColor:"darkgrey",borderStyle:"solid"}} className="mainCard" color="dark">
                         <section
                         style={{position:"absolute", marginLeft:"0%"}}
                         > Published: {new Date(note?.createdAt).toLocaleDateString()}</section>
+                        <section
+                        style={{position:"absolute", marginLeft:"0%", marginTop:"18px"}}
+                        > By: {note?.userProfile?.username}</section>
+                    <CardHeader>
+
+
                         {note?.name}
                     </CardHeader>
                     <CardBody>
@@ -60,7 +66,8 @@ export default function NoteDetails(){
                 </Card>
                 </>)
                 :(<>
-                <Card className="mainCard" color="dark">
+                <Button style={{position:"absolute", left:"25%", top:"110px"}} onClick={() => nav(-1)}>Back</Button>
+                <Card style={{borderColor:"darkgrey",borderStyle:"solid"}} className="mainCard" color="dark">
                     <CardHeader>
                         <section
                         style={{position:"absolute", marginLeft:"0%"}}

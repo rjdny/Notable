@@ -45,6 +45,7 @@ namespace Notable.Repositories
                 }
             }
         }
+
         public void AddCategoryNote(CategoryNote categoryNote)
         {
             using (var conn = Connection)
@@ -77,7 +78,22 @@ namespace Notable.Repositories
                     cmd.ExecuteNonQuery();
                 }
             }
-
+        }
+        public void RemoveCategoryNote(int categoryId, int noteId)
+        {
+            using (var conn = Connection)
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                    DELETE FROM CategoryNote 
+                    WHERE NoteId = @noteId AND CategoryId = @categoryId";
+                    DbUtils.AddParameter(cmd, "@noteId", noteId);
+                    DbUtils.AddParameter(cmd, "@categoryId", categoryId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
         }
 
         public void AddLike(NoteLike noteLike)
@@ -179,6 +195,55 @@ namespace Notable.Repositories
                 }
             }
         }
+        public List<Note> GetPublicNotes(string term = null)
+        {
+            using (var conn = Connection)
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                    SELECT n.Id, n.UserProfileId, n.Name, n.Content, 
+                    n.CreatedAt, n.isPublic, up.Id as userId, up.Username as userName
+                    FROM Note n
+                    LEFT JOIN UserProfile up ON up.Id = UserProfileId
+                    WHERE isPublic = @public";
+
+                    cmd.Parameters.AddWithValue("@public",true);
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        var notes = new List<Note>();
+                        while (reader.Read())
+                        {
+                            notes.Add(new Note()
+                            {
+                                Id = DbUtils.GetInt(reader, "Id"),
+                                UserProfileId = DbUtils.GetInt(reader, "UserProfileId"),
+                                Name = DbUtils.GetString(reader, "Name"),
+                                Content = DbUtils.GetString(reader, "Content"),
+                                CreatedAt = DbUtils.GetDateTime(reader, "CreatedAt"),
+                                IsPublic = DbUtils.GetBool(reader, "isPublic"),
+                                UserProfile = new UserProfile()
+                                {
+                                    Id = DbUtils.GetInt(reader, "userId"),
+                                    Username = DbUtils.GetString(reader, "userName")
+                                }
+                            });
+                        }
+
+                        if(term == null)
+                            return notes;
+
+                        return notes.FindAll((note) =>
+                        note.Name.ToLower().Contains(term.ToLower())
+                        || note.Content.ToLower().Contains(term.ToLower())
+                        || note.UserProfile.Username.ToLower().Contains(term.ToLower()));
+                    }
+                }
+            }
+        }
+
         public Note GetById(int id)
         {
             using (var conn = Connection)
@@ -187,9 +252,11 @@ namespace Notable.Repositories
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                    SELECT Id, UserProfileId, Name, Content, CreatedAt, isPublic
-                    FROM Note
-                    WHERE id = @Id";
+                    SELECT n.Id, n.UserProfileId, n.Name, n.Content, 
+                    n.CreatedAt, n.isPublic, up.Id as userId, up.Username as userName
+                    FROM Note n
+                    LEFT JOIN UserProfile up ON up.Id = UserProfileId
+                    WHERE n.Id = @Id";
 
                     DbUtils.AddParameter(cmd, "@Id", id);
 
@@ -205,7 +272,12 @@ namespace Notable.Repositories
                                 Name = DbUtils.GetString(reader, "Name"),
                                 Content = DbUtils.GetString(reader, "Content"),
                                 CreatedAt = DbUtils.GetDateTime(reader, "CreatedAt"),
-                                IsPublic = DbUtils.GetBool(reader, "isPublic")
+                                IsPublic = DbUtils.GetBool(reader, "isPublic"),
+                                UserProfile = new UserProfile()
+                                {
+                                    Id = DbUtils.GetInt(reader, "userId"),
+                                    Username = DbUtils.GetString(reader, "userName")
+                                }
                             };
                         }
                         return note;

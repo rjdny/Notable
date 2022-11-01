@@ -10,7 +10,6 @@ namespace Notable.Repositories
     public class CategoryRepository : BaseRepository, ICategoryRepository
     {
         public CategoryRepository(IConfiguration iconfig) : base(iconfig) { }
-
         public List<Note> GetNotes(int categoryId)
         {
             using (var conn = Connection)
@@ -19,7 +18,7 @@ namespace Notable.Repositories
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                    SELECT n.Id, n.UserProfileId, n.Content, n.CreatedAt, n.isPublic
+                    SELECT n.Id,n.Name , n.UserProfileId, n.Content, n.CreatedAt, n.isPublic
                     FROM CategoryNote cn
                     JOIN Note n ON cn.NoteId = n.Id
                     WHERE cn.CategoryId = @id";
@@ -34,6 +33,7 @@ namespace Notable.Repositories
                             notes.Add(new Note()
                             {
                                 Id = DbUtils.GetInt(reader, "Id"),
+                                Name = DbUtils.GetString(reader, "Name"),
                                 UserProfileId = DbUtils.GetInt(reader, "UserProfileId"),
                                 Content = DbUtils.GetString(reader, "Content"),
                                 CreatedAt = DbUtils.GetDateTime(reader, "CreatedAt"),
@@ -45,6 +45,40 @@ namespace Notable.Repositories
                 }
             }
         }
+        public List<Category> GetCategories(int noteId)
+        {
+            using (var conn = Connection)
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                        SELECT c.Id, c.[Name], c.UserProfileId
+                        FROM CategoryNote cn
+                        JOIN Category c ON cn.CategoryId = c.Id
+                        WHERE cn.NoteId = @id";
+
+                    cmd.Parameters.AddWithValue("@id", noteId);
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        var categories = new List<Category>();
+                        while (reader.Read())
+                        {
+                            categories.Add(new Category()
+                            {
+                                Id = DbUtils.GetInt(reader, "Id"),
+                                Name = DbUtils.GetString(reader, "Name"),
+                                UserProfileId = DbUtils.GetInt(reader, "UserProfileId")
+                            });
+                        }
+
+                        return categories;
+                    }
+                }
+            }
+        }
+
         public List<Category> GetAll(int userId)
         {
             using (var conn = Connection)
@@ -157,5 +191,6 @@ namespace Notable.Repositories
                 }
             }
         }
+
     }
 }

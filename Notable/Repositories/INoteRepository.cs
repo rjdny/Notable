@@ -11,6 +11,9 @@ namespace Notable.Repositories
         Note GetById(int id);
         void Update(Note note);
         List<Note> GetAllByUser(int userId);
+        List<Note> GetPublicNotes(string term = null);
         void AddCategoryNote(CategoryNote categoryNote);
+        void RemoveCategoryNote(int categoryNoteId);
+        void RemoveCategoryNote(int categoryId, int noteId);
     }
 }

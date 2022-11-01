@@ -1,8 +1,9 @@
 import React from "react";
-import { Routes, Route, Navigate, Link } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import LoginForm from "./Login/LoginForm";
 import RegisterForm from "./Login/RegisterForm";
 import CategoryList from "./UserCategories/CategoryList";
+import Explorer from "./UserExplorer/Explorer";
 import NoteDetails from "./UserNotes/NoteDetails";
 import NoteList from "./UserNotes/NoteList";
 
@@ -22,7 +23,7 @@ const ApplicationViews = ({isLoggedIn}) => {
               <Route path="mynotes" element={<NoteList />}/>
               <Route path="notes/:noteId" element={<NoteDetails />}/>
               <Route path="mycategories" element={<CategoryList />}/>
-              <Route path="explore" element={<h1>Place to explore</h1>}/>
+              <Route path="explore" element={<Explorer />}/>
             </Route>
           </>}
           

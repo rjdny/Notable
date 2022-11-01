@@ -1,7 +1,6 @@
 body{
-  /* background-color: #282c34; */
+  background-color: #4f4f4f;
   color: white;
-  background-image: url("https://coolbackgrounds.io/images/backgrounds/index/compute-ea4c57a4.png");
 }
 
 
@@ -76,6 +75,7 @@ body{
   border-radius: 25px;
   display: inline-block
 }
+
 .authError{
   color:rgb(221, 43, 43);
 }
