@@ -41,10 +41,11 @@ export default function CategoryList(){
 
 return (<>
 
-    <div className="tableBackButton">
+    <div className="AddNoteButton">
         <Button style={{marginRight:"10px"}} onClick={() => nav(-1)}>Back</Button>
         <Button onClick={() => setShowCreateModal(!showCreateModal)}>Create a Category</Button>
     </div>
+    <div style={{position:"absolute", zIndex:"-100",height:"300px"}} className="cleantable"></div>
     <table className="cleantable">
         <thead>
             <tr>

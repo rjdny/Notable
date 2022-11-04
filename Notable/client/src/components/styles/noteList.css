@@ -13,8 +13,8 @@ td{
 
 .cleantable{
     margin-top: 100px;
-    margin-left: 15%;
-    width: 1000px;
+    margin-left: 25%;
+    width: 50%;
     background-color: #202428;
 }
 
@@ -47,8 +47,8 @@ td{
 
 .AddNoteButton{
     position:absolute;
-    top:135px;
-    left: 15%;
+    top: 135px;
+    left: 25%;
 }
 
 .dataRow{
